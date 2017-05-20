@@ -7,6 +7,7 @@ import numpy as np
 
 from util.activation_functions import Activation
 from model.classifier import Classifier
+from report.evaluator import Evaluator
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
@@ -56,9 +57,23 @@ class Perceptron(Classifier):
         verbose : boolean
             Print logging messages with validation accuracy if verbose is True.
         """
-        
-        # Write your code to train the perceptron here
-        pass
+        evaluator = Evaluator()
+        for epoch in range(self.epochs):
+            if verbose:
+                prediction = self.evaluate(self.validationSet)
+                evaluator.printAccuracy(self.validationSet, prediction)
+
+            for index in range(len(self.trainingSet.input)):
+                label = self.trainingSet.label[index]
+                data = self.trainingSet.input[index]
+                prediction = self.classify(data)
+                error = label - prediction
+
+                self.updateWeights(data, error)
+        if verbose:
+            prediction = self.evaluate(self.validationSet)
+            evaluator.printAccuracy(self.validationSet, prediction)
+
 
     def classify(self, testInstance):
         """Classify a single instance.
@@ -72,8 +87,7 @@ class Perceptron(Classifier):
         bool :
             True if the testInstance is recognized as a 7, False otherwise.
         """
-        # Write your code to do the classification on an input image
-        pass
+        return self.fire(testInstance)
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.
@@ -95,8 +109,8 @@ class Perceptron(Classifier):
         return list(map(self.classify, test))
 
     def updateWeights(self, input, error):
-        # Write your code to update the weights of the perceptron here
-        pass
+        change = np.multiply(self.learningRate * error, input)
+        self.weight = np.add(self.weight, change)
          
     def fire(self, input):
         """Fire the output of the perceptron corresponding to the input """
