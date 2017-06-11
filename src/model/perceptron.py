@@ -7,7 +7,6 @@ import numpy as np
 
 from util.activation_functions import Activation
 from model.classifier import Classifier
-from report.evaluator import Evaluator
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,

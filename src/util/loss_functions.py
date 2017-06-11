@@ -72,8 +72,7 @@ class SumSquaredError(Error):
         self.errorString = 'sse'
 
     def calculateError(self, target, output):
-        # SSE = 1/2*sum (i=1 to n) of (target_i - output_i)^2)
-        pass
+        return 0.5 * ((target-output) ** 2)
 
 
 class BinaryCrossEntropyError(Error):
