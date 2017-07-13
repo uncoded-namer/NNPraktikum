@@ -60,7 +60,8 @@ class MeanSquaredError(Error):
 
     def calculateError(self, target, output):
         # MSE = 1/n*sum (i=1 to n) of (target_i - output_i)^2)
-        pass
+        size = float(len(output))
+        return 1.0 / size * np.sum( (target - output) ** 2 )
 
 
 class SumSquaredError(Error):

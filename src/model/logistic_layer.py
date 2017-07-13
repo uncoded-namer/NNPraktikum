@@ -4,10 +4,8 @@ import time
 import numpy as np
 
 from util.activation_functions import Activation
-from model.layer import Layer
 
-
-class LogisticLayer(Layer):
+class LogisticLayer:
     """
     A layer of perceptrons acting as the output layer
 
@@ -41,21 +39,22 @@ class LogisticLayer(Layer):
     """
 
     def __init__(self, nIn, nOut, weights=None,
-                 activation='softmax', isClassifierLayer=True):
+                 activation='softmax', isClassifierLayer=True, learningRate=0.02):
 
         # Get activation function from string
         # Notice the functional programming paradigms of Python + Numpy
         self.activationString = activation
         self.activation = Activation.getActivation(self.activationString)
+        self.derivative = Activation.getDerivative(self.activationString)
 
         self.nIn = nIn
         self.nOut = nOut
 
         # Adding bias
-        self.input = np.ndarray((nIn+1, 1))
+        self.input    = np.ndarray((nIn+1, 1))
         self.input[0] = 1
-        self.output = np.ndarray((nOut, 1))
-        self.delta = np.zeros((nOut, 1))
+        self.output   = np.ndarray((nOut,  1))
+        self.delta    = np.zeros((nOut, 1))
 
         # You can have better initialization here
         if weights is None:
@@ -67,8 +66,11 @@ class LogisticLayer(Layer):
         self.isClassifierLayer = isClassifierLayer
 
         # Some handy properties of the layers
-        self.size = self.nOut
+        self.size  = self.nOut
         self.shape = self.weights.shape
+        
+        self.learningRate = learningRate
+        self.raw_out      = None
 
     def forward(self, input):
         """
@@ -84,7 +86,12 @@ class LogisticLayer(Layer):
         ndarray :
             a numpy array (1,nOut) containing the output of the layer
         """
-        pass
+        
+        # self.input   = input
+        self.input   = np.reshape(input, (input.shape[0], 1))
+        self.raw_out = np.dot(self.weights, self.input)
+        
+        return self.activation(self.raw_out)
 
     def computeDerivative(self, nextDerivatives, nextWeights):
         """
@@ -102,10 +109,18 @@ class LogisticLayer(Layer):
         ndarray :
             a numpy array containing the partial derivatives on this layer
         """
-        pass
+        
+        #if type(self.raw_out) == type(None):
+        #    raise Error("LogisticLayer.computeDerivative() called before LogisticLayer.forward()")
+        
+        self.delta = self.derivative(self.raw_out) * nextDerivatives.dot(nextWeights)
 
     def updateWeights(self):
         """
         Update the weights of the layer
         """
-        pass
+        
+        #if len(self.delta) != self.nOut or len(self.input) != (self.nIn + 1):
+        #    raise Error("Type confusion!")
+        
+        self.weights = self.weights + np.dot(self.delta, self.input.T)
