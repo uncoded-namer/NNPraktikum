@@ -5,8 +5,9 @@ Activation functions which can be used within neurons.
 """
 
 from numpy import exp
-from numpy import sum
-from numpy import maximum as max
+from numpy import divide
+from numpy import ones
+from numpy import asarray
 
 
 class Activation:
@@ -20,40 +21,55 @@ class Activation:
 
     @staticmethod
     def sigmoid(netOutput):
-        return 1/(1 + exp(-1.0 * netOutput))
+        # use e^x from numpy to avoid overflow
+        return 1/(1+exp(-1.0*netOutput))
 
     @staticmethod
     def sigmoidPrime(netOutput):
-        return Activation.sigmoid(netOutput) * (1 - Activation.sigmoid(netOutput))
+        # Here you have to code the derivative of sigmoid function
+        # netOutput.*(1-netOutput)
+        return netOutput * (1.0 - netOutput)
 
     @staticmethod
     def tanh(netOutput):
-        pass
-        
+        # return 2*Activation.sigmoid(2*netOutput)-1
+        ex = exp(1.0*netOutput)
+        exn = exp(-1.0*netOutput)
+        return divide(ex-exn, ex+exn)  # element-wise division
+
     @staticmethod
     def tanhPrime(netOutput):
-        pass
+        # Here you have to code the derivative of tanh function
+        return (1-Activation.tanh(netOutput)**2)
 
     @staticmethod
     def rectified(netOutput):
-        return lambda x: max(0.0, x)
+        return asarray([max(0.0, i) for i in netOutput])
 
     @staticmethod
     def rectifiedPrime(netOutput):
-        pass
+        # reluPrime=1 if netOutput > 0 otherwise 0
+        #print(type(netOutput))
+        return netOutput>0
 
     @staticmethod
     def identity(netOutput):
-        return lambda x: x
+        return netOutput
 
     @staticmethod
     def identityPrime(netOutput):
-        pass
+        # identityPrime = 1
+        return ones(netOutput.size)
 
     @staticmethod
     def softmax(netOutput):
         pass
-
+        
+    @staticmethod
+    def softmaxPrime(netOutput):
+        # Here you have to code the softmax function
+        pass
+        
     @staticmethod
     def getActivation(str):
         """
@@ -82,6 +98,8 @@ class Activation:
 
         if str == 'sigmoid':
             return Activation.sigmoidPrime
+        elif str == 'softmax':
+            return Activation.softmaxPrime
         elif str == 'tanh':
             return Activation.tanhPrime
         elif str == 'relu':
