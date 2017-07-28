@@ -50,7 +50,7 @@ class Activation:
     def rectifiedPrime(netOutput):
         # reluPrime=1 if netOutput > 0 otherwise 0
         #print(type(netOutput))
-        return netOutput>0
+        return netOutput > 0.0
 
     @staticmethod
     def identity(netOutput):
@@ -63,12 +63,14 @@ class Activation:
 
     @staticmethod
     def softmax(netOutput):
-        pass
+        # numerically stable version
+        exps = exp(netOutput - max(netOutput))
+        return divide(exps, sum(exps))
         
     @staticmethod
     def softmaxPrime(netOutput):
         # Here you have to code the softmax function
-        pass
+        return netOutput * (1.0 - netOutput)
         
     @staticmethod
     def getActivation(str):

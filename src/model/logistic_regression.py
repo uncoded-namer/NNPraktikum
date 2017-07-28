@@ -11,7 +11,7 @@ from model.classifier import Classifier
 from model.logistic_layer import LogisticLayer
 
 from util.loss_functions import *
-
+import copy
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
                     stream=sys.stdout)
@@ -46,9 +46,9 @@ class LogisticRegression(Classifier):
         self.learningRate = learningRate
         self.epochs = epochs
 
-        self.trainingSet = train
-        self.validationSet = valid
-        self.testSet = test
+        self.trainingSet = copy.deepcopy(train)
+        self.validationSet = copy.deepcopy(valid)
+        self.testSet = copy.deepcopy(test)
         
         if loss == 'bce':
             self.loss = BinaryCrossEntropyError()

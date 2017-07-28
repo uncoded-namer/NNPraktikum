@@ -2,7 +2,7 @@
 
 from random import random
 from model.classifier import Classifier
-
+import copy
 __author__ = "ABC XYZ"  # Adjust this when you copy the file
 __email__ = "ABC.XYZ@student.kit.edu"  # Adjust this when you copy the file
 
@@ -20,9 +20,9 @@ class StupidRecognizer(Classifier):
 
         self.byChance = byChance
 
-        self.trainingSet = train
-        self.validationSet = valid
-        self.testSet = test
+        self.trainingSet = copy.deepcopy(train)
+        self.validationSet = copy.deepcopy(valid)
+        self.testSet = copy.deepcopy(test)
 
     def train(self):
         # Do nothing

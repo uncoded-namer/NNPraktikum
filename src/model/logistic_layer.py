@@ -68,8 +68,7 @@ class LogisticLayer():
         # Some handy properties of the layers
         self.size  = self.nOut
         self.shape = self.weights.shape
-        
-        self.learningRate = learningRate
+
         self.raw_out      = None
 
     def forward(self, inp):
@@ -128,7 +127,7 @@ class LogisticLayer():
         # Or even more general: doesn't care which activation function is used
         # dado: derivative of activation function w.r.t the output
         dado = self.activationDerivative(self.outp)
-        self.deltas = (dado * np.dot(next_derivatives, next_weights))
+        self.deltas = (dado * np.dot(next_weights, next_derivatives))
 
         # Or you can explicitly calculate the derivatives for two cases
         # Page 40 Back-propagation slides
@@ -140,7 +139,6 @@ class LogisticLayer():
         #                   np.dot(next_derivatives, next_weights)
         # Or you can have two computeDerivative methods, feel free to call
         # the other is computeOutputLayerDerivative or such.
-        return self.deltas
 
     def updateWeights(self, learningRate):
         """

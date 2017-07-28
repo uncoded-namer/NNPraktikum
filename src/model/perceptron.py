@@ -4,6 +4,7 @@ import sys
 import logging
 
 import numpy as np
+import copy
 
 from util.activation_functions import Activation
 from model.classifier import Classifier
@@ -39,18 +40,23 @@ class Perceptron(Classifier):
         self.learningRate = learningRate
         self.epochs = epochs
 
-        self.trainingSet = train
-        self.validationSet = valid
-        self.testSet = test
+        self.trainingSet = copy.deepcopy(train)
+        self.validationSet = copy.deepcopy(valid)
+        self.testSet = copy.deepcopy(test)
 
         # Initialize the weight vector with small random values
         # around 0 and 0.1
-
         self.weight = np.random.rand(self.trainingSet.input.shape[1])/10
 
         # add bias weights at the beginning with the same random initialize
-        self.weight = np.insert(self.weight, 0, np.random.rand()/10)
+        self.weight = np.insert(self.weight, 0, np.random.rand()/10, axis=0)
 
+        # add bias values ("1"s) at the beginning of all data sets
+        self.trainingSet.input = np.insert(self.trainingSet.input, 0, 1,
+                                           axis=1)
+        self.validationSet.input = np.insert(self.validationSet.input, 0, 1,
+                                             axis=1)
+        self.testSet.input = np.insert(self.testSet.input, 0, 1, axis=1)
         
     def train(self, verbose=True):
         """Train the perceptron with the perceptron learning algorithm.
