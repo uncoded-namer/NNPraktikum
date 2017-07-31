@@ -21,7 +21,7 @@ class MultilayerPerceptron(Classifier):
 
     def __init__(self, train, valid, test, layers=None, inputWeights=None,
                  outputTask='classification', outputActivation='softmax',
-                 loss='bce', learningRate=0.01, epochs=50):
+                 loss='ce', learningRate=0.001, epochs=50):
 
         """
         A MNIST recognizer based on multi-layer perceptron algorithm
@@ -63,6 +63,8 @@ class MultilayerPerceptron(Classifier):
             self.loss = DifferentError()
         elif loss == 'absolute':
             self.loss = AbsoluteError()
+        elif loss == 'ce':
+            self.loss = CrossEntropyError()
         else:
             raise ValueError('There is no predefined loss function ' +
                              'named ' + str)
@@ -142,21 +144,19 @@ class MultilayerPerceptron(Classifier):
         ndarray :
             a numpy array (1,nOut) containing the output of the layer
         """
-        output = self._get_output_layer().outp
-        loss = self.loss.calculateError(target, output)
 
+        newTarget = np.zeros(10)
+        newTarget[target] = 1
 
         for layer in reversed(self.layers):
             if layer.isClassifierLayer:
-                derivates = - self.loss.calculateDerivative(target, output)
+                derivates = - self.loss.calculateDerivative(newTarget, layer.outp)
                 weights = np.ones(layer.shape[1])
 
             layer.computeDerivative(derivates, weights)
             derivates = layer.deltas
             weights = layer.weights[1:]
 
-        return loss
-    
     def _update_weights(self, learningRate):
         """
         Update the weights of the layers by propagating back the error
@@ -175,21 +175,17 @@ class MultilayerPerceptron(Classifier):
         learned = False
         iteration = 1
         while not learned:
-            totalError = 0
             for data, label in zip(self.trainingSet.input, self.trainingSet.label):
-                newLabel = np.zeros(10)
-                newLabel[label] = 1
                 self._feed_forward(data)
-                error = self._compute_error(newLabel)
+                self._compute_error(label)
                 self._update_weights(self.learningRate)
-
-                totalError = totalError + abs(error)
-
-            self.performances.append(totalError)
+            accuracy = accuracy_score(self.validationSet.label,
+                                      self.evaluate(self.validationSet))
+            self.performances.append(accuracy)
             if verbose:
-                logging.info("Epoch: %i/%i; Error: %i", iteration, self.epochs, totalError)
+                logging.info("Epoch: %i/%i; Accuracy: %f", iteration, self.epochs, accuracy * 100)
 
-            if totalError == 0 or iteration >= self.epochs:
+            if accuracy == 1.0 or iteration >= self.epochs:
                 # stop criteria is reached
                 learned = True
             iteration += 1
@@ -199,7 +195,8 @@ class MultilayerPerceptron(Classifier):
     def classify(self, test_instance):
         # Classify an instance given the model of the classifier
         # You need to implement something here
-        return np.argmax(self._get_output_layer())
+        output = self._feed_forward(test_instance)
+        return np.argmax(output)
         
 
     def evaluate(self, test=None):

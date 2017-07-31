@@ -58,7 +58,7 @@ class LogisticLayer():
         # You can have better initialization here
         if weights is None:
             rns = np.random.RandomState(int(time.time()))
-            self.weights = rns.uniform(size=(nIn + 1, nOut))-0.5
+            self.weights = rns.rand(nIn + 1, nOut)/10
         else:
             assert(weights.shape == (nIn + 1, nOut))
             self.weights = weights
@@ -127,16 +127,14 @@ class LogisticLayer():
         # Or even more general: doesn't care which activation function is used
         # dado: derivative of activation function w.r.t the output
         dado = self.activationDerivative(self.outp)
-        self.deltas = (dado * np.dot(next_weights, next_derivatives))
+        #self.deltas = (dado * np.dot(next_weights, next_derivatives))
 
         # Or you can explicitly calculate the derivatives for two cases
         # Page 40 Back-propagation slides
-        # if self.isClassifierLayer:
-        #     self.deltas = (next_derivatives - self.outp) * self.outp * \
-        #                   (1 - self.outp)
-        # else:
-        #     self.deltas = self.outp * (1 - self.outp) * \
-        #                   np.dot(next_derivatives, next_weights)
+        if self.isClassifierLayer:
+            self.deltas = next_derivatives * dado
+        else:
+            self.deltas = dado * np.tensordot(next_derivatives, next_weights, axes=([0], [-1]))
         # Or you can have two computeDerivative methods, feel free to call
         # the other is computeOutputLayerDerivative or such.
 
@@ -147,7 +145,7 @@ class LogisticLayer():
 
         # weight updating as gradient descent principle
         for neuron in range(0, self.nOut):
-            self.weights[:, neuron] -= (learningRate *
+            self.weights[:, neuron] += (learningRate *
                                         self.deltas[neuron] *
                                         self.inp)
         

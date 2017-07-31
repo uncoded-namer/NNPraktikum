@@ -8,6 +8,7 @@ from numpy import exp
 from numpy import divide
 from numpy import ones
 from numpy import asarray
+from numpy import sum
 
 
 class Activation:
@@ -21,8 +22,10 @@ class Activation:
 
     @staticmethod
     def sigmoid(netOutput):
+        out = map(lambda x: 1/(1+exp(-x)) if x >= 0 else exp(x) / (1+exp(x)), netOutput)
         # use e^x from numpy to avoid overflow
-        return 1/(1+exp(-1.0*netOutput))
+        #return 1/(1+exp(-1.0*netOutput))
+        return asarray(out)
 
     @staticmethod
     def sigmoidPrime(netOutput):
@@ -64,8 +67,8 @@ class Activation:
     @staticmethod
     def softmax(netOutput):
         # numerically stable version
-        exps = exp(netOutput - max(netOutput))
-        return divide(exps, sum(exps))
+        #exps = exp(netOutput - max(netOutput))
+        return divide(exp(netOutput), sum(exp(netOutput)))
         
     @staticmethod
     def softmaxPrime(netOutput):
