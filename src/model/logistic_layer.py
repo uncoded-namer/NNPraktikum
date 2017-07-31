@@ -134,7 +134,7 @@ class LogisticLayer():
         if self.isClassifierLayer:
             self.deltas = next_derivatives * dado
         else:
-            self.deltas = dado * np.tensordot(next_derivatives, next_weights, axes=([0], [-1]))
+            self.deltas = dado * np.dot(next_weights, next_derivatives)
         # Or you can have two computeDerivative methods, feel free to call
         # the other is computeOutputLayerDerivative or such.
 
